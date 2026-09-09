@@ -3,14 +3,14 @@ name: Build Android APK
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:    # تتيح لك التشغيل اليدوي من صفحة الأكشنز
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: 1. سحب الكود من المستودع
+    - name: 1. سحب الكود
       uses: actions/checkout@v4
 
     - name: 2. إعداد Python
@@ -27,37 +27,26 @@ jobs:
           libncurses5-dev libncursesw5-dev libtinfo5 \
           cmake libffi-dev libssl-dev
 
-    - name: 4. تثبيت Buildozer و Cython
+    # ===== هذه هي الخطوة السحرية البديلة (تحل مشكلتك نهائياً) =====
+    - name: 4. إعداد Android SDK وقبول التراخيص باستخدام أداة رسمية
+      uses: android-actions/setup-android@v3
+      with:
+        # تثبيت الإصدار 37 الذي يطلبه مشروعك
+        packages: 'build-tools;37.0.0'
+    # ============================================================
+
+    - name: 5. تثبيت Buildozer
       run: |
         pip install --upgrade pip
         pip install buildozer cython
 
-    # ===== الخطوة السحرية التي تحل مشكلتك =====
-    - name: 5. تثبيت Android SDK وقبول التراخيص تلقائياً
+    - name: 6. بناء ملف APK
       run: |
-        # تحميل سطر الأوامر الخاص بـ SDK (command-line tools)
-        wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
-        unzip commandlinetools-linux-*.zip
-        mkdir -p ~/.buildozer/android/platform/android-sdk/cmdline-tools
-        mv cmdline-tools ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest
-        
-        # تعيين المسار في البيئة
-        echo "$HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
-        echo "ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk" >> $GITHUB_ENV
-        
-        # قبول جميع التراخيص بدون تدخل (الحل النهائي)
-        yes | ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1
-        
-        # تثبيت Build-Tools 37 المطلوب بشكل صريح
-        ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager "build-tools;37.0.0"
-    # ==========================================
-
-    - name: 6. بناء ملف APK باستخدام Buildozer
-      run: |
-        # تأكد من وجود ملف buildozer.spec في جذر المشروع
+        # تعيين مسار SDK حتى يراه Buildozer
+        export ANDROID_HOME=$ANDROID_HOME
         buildozer android debug
 
-    - name: 7. رفع ملف APK الناتج (تحميله)
+    - name: 7. رفع ملف APK الناتج
       uses: actions/upload-artifact@v4
       with:
         name: my-app-debug

@@ -1,56 +1,63 @@
-import os
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.uix.image import Image as KivyImage
+from kivy.uix.label import Label
+from kivy.graphics.texture import Texture
 from PIL import Image, ImageDraw
+import io
 
-def process_image():
-    print("\n--- قسم معالجة الصور بالذكاء الاصطناعي ---")
-    
-    img_path = "logo_test.jpg"
-    img = Image.new('RGB', (800, 600), color = (73, 109, 137))
-    d = ImageDraw.Draw(img)
-    d.text((250, 280), "Al-Hamza Pro", fill=(255, 255, 0))
-    img.save(img_path)
-    print(f"[+] تم إنشاء صورة تجريبية باسم {img_path} بنجاح!")
-
-    try:
-        with Image.open(img_path) as img:
-            print(f"[+] الأبعاد الحالية للصورة: {img.size}")
-            
-            width, height = img.size
-            new_size = (width // 2, height // 2)
-            resized_img = img.resize(new_size)
-            
-            output_name = "output_" + img_path
-            resized_img.save(output_name)
-            print(f"[✓] تم تصغير وحفظ الصورة الجديدة بنجاح باسم: {output_name}")
-    except Exception as e:
-        print(f"[!] حدث خطأ: {e}")
-
-def main():
-    while True:
-        print("\n========================================")
-        print("   Al-Hamza Pro - الحمزة برو")
-        print("   Image & Video Editor App")
-        print("========================================")
-        print("1. Edit & Enhance Images")
-        print("2. Cut & Edit Videos (قريباً)")
-        print("3. Arabic Fonts & Text Effects (قريباً)")
-        print("4. Exit (خروج)")
+class AlHamzaProApp(App):
+    def build(self):
+        self.layout = BoxLayout(orientation='vertical', padding=20, spacing=15)
         
-        choice = input("\nSelect an option (1-4): ")
+        # عنوان التطبيق
+        self.label_title = Label(text='[b]Al-Hamza Pro[/b]\nمعالج الصور', markup=True, font_size='24sp')
+        self.layout.add_widget(self.label_title)
         
-        if choice == '1':
-            process_image()
-        elif choice == '2':
-            print("\n[+] Video cutter feature is under development...")
-        elif choice == '3':
-            print("\n[+] Loading Arabic fonts manager...")
-        elif choice == '4':
-            print("\n[!] شكراً لاستخدامك الحمزة برو. إلى اللقاء!")
-            break
-        else:
-            print("\n[!] Invalid choice, please try again.")
+        # زر لمعالجة الصورة
+        self.btn_process = Button(text='اضغط لإنشاء وتعديل الصورة', size_hint=(1, 0.3))
+        self.btn_process.bind(on_press=self.process_and_show)
+        self.layout.add_widget(self.btn_process)
+        
+        # مكان عرض الصورة بعد التعديل
+        self.image_display = KivyImage(size_hint=(1, 0.6))
+        self.layout.add_widget(self.image_display)
+        
+        # علامة الحالة
+        self.status_label = Label(text='انتظر الضغط على الزر', font_size='16sp')
+        self.layout.add_widget(self.status_label)
+        
+        return self.layout
 
-if __name__ == "__main__":
-    main()
-	
+    def process_and_show(self, instance):
+        try:
+            self.status_label.text = 'جاري معالجة الصورة...'
+            
+            # 1. إنشاء الصورة الأصلية
+            img = Image.new('RGB', (800, 600), color=(73, 109, 137))
+            d = ImageDraw.Draw(img)
+            d.text((250, 280), "Al-Hamza Pro", fill=(255, 255, 0))
+            img.save("logo_test.jpg")
+            
+            # 2. تصغير الصورة
+            with Image.open("logo_test.jpg") as img_opened:
+                width, height = img_opened.size
+                new_size = (width // 2, height // 2)
+                resized_img = img_opened.resize(new_size)
+                resized_img.save("output_logo_test.jpg")
+            
+            # 3. عرض الصورة الجديدة في التطبيق
+            with open("output_logo_test.jpg", "rb") as f:
+                data = f.read()
+                texture = Texture.create(size=(400, 300))  # عرض مصغر
+                texture.blit_buffer(data, colorfmt='rgb', bufferfmt='ubyte')
+                self.image_display.texture = texture
+            
+            self.status_label.text = '✓ تمت المعالجة وعرض الصورة بنجاح!'
+            
+        except Exception as e:
+            self.status_label.text = f'خطأ: {str(e)}'
 
+if __name__ == '__main__':
+    AlHamzaProApp().run()

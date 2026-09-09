@@ -19,6 +19,9 @@ android.min_api = 24
 android.ndk = 25b
 android.ndk_api = 24
 
+# تثبيت إصدار أدوات البناء المحدد لمنع جلب الإصدار 37 الخاطئ
+android.build_tools_version = 33.0.2
+
 android.release_artifact = apk
 android.debug_artifact = apk
 

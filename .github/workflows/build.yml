@@ -1,4 +1,4 @@
-name: CI
+name: Build APK
 
 on:
   push:
@@ -11,25 +11,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
+    - name: Get Rodent / Build APK
+      uses: Kivy-CN/actions-build-apk@v1
       with:
-        python-version: '3.10'
-
-    - name: Set up Android SDK
-      uses: android-actions/setup-android@v3
-
-    # ⭐ هذا السطر هو الحل الجذري لمشكلة التراخيص التي تتكرر معك
-    - name: Accept Android Licenses
-      run: |
-        yes | sdkmanager --licenses || true
-
-    - name: Install dependencies
-      run: |
-        pip install --upgrade pip
-        pip install buildozer cython pexpect
-
-    - name: Build with Buildozer
-      uses: ArtemSBulgakov/buildozer-action@v1
-      with:
-        command: buildozer -v android debug
+        buildozer_version: master

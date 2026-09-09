@@ -9,8 +9,14 @@ package.name = alhamzapro
 # (str) Package domain (needed for android packaging)
 package.domain = org.alhamza
 
+# (str) Source directory where the application files are located
+source.dir = .
+
 # (list) Source files to include (let it empty to include all files)
 source.include_exts = py,png,jpg,kv,atlas
+
+# (str) Application versioning
+version = 0.1
 
 # (list) Application requirements
 requirements = python3,kivy
@@ -31,7 +37,7 @@ android.min_api = 21
 # (str) Android SDK version to use
 android.sdk = 33
 
-# (str) Android build tools version to use (Fixed to avoid version 37 errors)
+# (str) Android build tools version to use
 android.build_tools_version = 33.0.2
 
 # (str) python-for-android branch to use

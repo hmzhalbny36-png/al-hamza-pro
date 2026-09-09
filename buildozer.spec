@@ -1,44 +1,76 @@
-[app]
+name: Build Android APK
 
-# (str) Title of your application
-title = Al-Hamza Pro
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
 
-# (str) Package name
-package.name = alhamzapro
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-# (str) Package domain (needed for android packaging)
-package.domain = org.alhamza
+    steps:
+    - name: 1. سحب الكود
+      uses: actions/checkout@v4
 
-# (str) Application versioning
-version = 1.0
+    - name: 2. إعداد Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
 
-# (str) Source files where the *.py files are located
-source.dir = .
+    - name: 3. تثبيت متطلبات النظام
+      run: |
+        sudo apt update
+        sudo apt install -y \
+          git zip unzip openjdk-17-jdk \
+          autoconf libtool pkg-config zlib1g-dev \
+          libncurses5-dev libncursesw5-dev libtinfo5 \
+          cmake libffi-dev libssl-dev
+        # تعيين Java 17 كلغة افتراضية
+        sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
 
-# (list) Source files to include (let it empty to include all files)
-source.include_exts = py,png,jpg,kv,atlas
+    - name: 4. تثبيت Buildozer
+      run: |
+        pip install --upgrade pip
+        pip install buildozer cython
 
-# (list) List of exclusions
-source.exclude_exts = spec
+    # ===== الطريقة اليدوية المضبوطة (تنجح دائماً) =====
+    - name: 5. تثبيت Android SDK وقبول التراخيص يدوياً
+      run: |
+        # تحديد المسار الثابت لـ SDK
+        export ANDROID_HOME="$HOME/.buildozer/android/platform/android-sdk"
+        mkdir -p "$ANDROID_HOME"
+        
+        # تحميل أحدث أدوات سطر الأوامر (رابط رسمي من Google)
+        wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/cmdline-tools.zip
+        unzip -q /tmp/cmdline-tools.zip -d /tmp/
+        mkdir -p "$ANDROID_HOME/cmdline-tools"
+        mv /tmp/cmdline-tools "$ANDROID_HOME/cmdline-tools/latest"
+        
+        # إضافة الـ SDK إلى مسار التنفيذ
+        echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
+        echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+        
+        # قبول جميع التراخيص بدون تدخل (هذا يحل مشكلتك الأساسية)
+        yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null 2>&1
+        
+        # تثبيت Build-Tools 37 و Platform المطلوبة
+        "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "build-tools;37.0.0" "platforms;android-33"
+    # =====================================================
 
-# (list) Application requirements
-requirements = python3,kivy
+    - name: 6. بناء ملف APK
+      run: |
+        # تأكد من وجود ملف buildozer.spec في مجلد المشروع
+        if [ ! -f "buildozer.spec" ]; then
+          echo "❌ ملف buildozer.spec غير موجود! قم بإنشائه أولاً."
+          exit 1
+        fi
+        # إجبار Buildozer على استخدام SDK الذي ثبتناه
+        export ANDROID_HOME="$HOME/.buildozer/android/platform/android-sdk"
+        buildozer android debug
 
-# (str) Supported orientation
-orientation = portrait
-
-#
-# Android specific
-#
-
-# (int) Target Android API, should be as high as possible
-android.api = 34
-
-# (int) Minimum API your APK / AAB will support
-android.minapi = 21
-
-# (str) Android NDK version to use
-android.ndk = 25b
-
-# (bool) Enable Android auto-backup (Android API >=23)
-android.autopermissions = True
+    - name: 7. رفع ملف APK الناتج
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-debug
+        path: bin/*.apk

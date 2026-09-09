@@ -9,6 +9,9 @@ package.name = alhamzapro
 # (str) Package domain (needed for android packaging)
 package.domain = org.alhamza
 
+# (str) Application versioning
+version = 1.0
+
 # (list) Source files to include (let it empty to include all the files)
 source.dir = .
 

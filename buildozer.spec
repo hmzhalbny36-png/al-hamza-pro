@@ -9,7 +9,7 @@ package.name = alhamzapro
 # (str) Package domain (needed for android packaging)
 package.domain = org.alhamza
 
-# (str) Application versioning (THIS WAS MISSING)
+# (str) Application versioning
 version = 1.0
 
 # (str) Source files where the *.py files are located
@@ -36,9 +36,6 @@ android.api = 34
 
 # (int) Minimum API your APK / AAB will support
 android.minapi = 21
-
-# (int) Android SDK version to use
-android.sdk = 34
 
 # (str) Android NDK version to use
 android.ndk = 25b

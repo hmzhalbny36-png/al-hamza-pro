@@ -1,41 +1,35 @@
-name: Build Android APK
+name: CI
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.10'
 
-    - name: Install Dependencies
+    - name: Set up Android SDK
+      uses: android-actions/setup-android@v3
+
+    # ⭐ هذا السطر هو الحل الجذري لمشكلة التراخيص التي تتكرر معك
+    - name: Accept Android Licenses
       run: |
-        sudo apt-get update
-        sudo apt-get install -y git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev ccache
+        yes | sdkmanager --licenses || true
+
+    - name: Install dependencies
+      run: |
         pip install --upgrade pip
-        pip install --upgrade buildozer cython==0.29.36
+        pip install buildozer cython pexpect
 
-    - name: Setup Android SDK and Build APK
-      run: |
-        rm -rf .buildozer bin
-        mkdir -p ~/.android
-        touch ~/.android/repositories.cfg
-        
-        export ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk
-        
-        buildozer -v android debug
-
-    - name: Upload APK
-      uses: actions/upload-artifact@v4
+    - name: Build with Buildozer
+      uses: ArtemSBulgakov/buildozer-action@v1
       with:
-        name: package
-        path: bin/*.apk
+        command: buildozer -v android debug

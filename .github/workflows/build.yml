@@ -1,4 +1,4 @@
-name: Build Android APK
+name: بناء تطبيق أندرويد
 
 on:
   push:
@@ -7,20 +7,18 @@ on:
 
 jobs:
   build:
-    # ===== استخدم Ubuntu 20.04 بدلاً من latest =====
-    # هذا الإصدار ثابت وكل حزمه معروفة ومتوفرة
     runs-on: ubuntu-20.04
 
     steps:
     - name: 1. سحب الكود
       uses: actions/checkout@v4
 
-    - name: 2. إعداد Python
+    - name: 2. إعداد بايثون
       uses: actions/setup-python@v5
       with:
         python-version: '3.10'
 
-    - name: 3. تثبيت متطلبات النظام (لـ Ubuntu 20.04)
+    - name: 3. تثبيت متطلبات النظام
       run: |
         sudo apt update
         sudo apt install -y \
@@ -28,7 +26,6 @@ jobs:
           autoconf libtool pkg-config zlib1g-dev \
           libncurses5-dev libncursesw5-dev \
           cmake libffi-dev libssl-dev
-        # تعيين Java 17 كافتراضي (الطريقة الصحيحة)
         sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/java-17-openjdk-amd64/bin/java 1
         sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
 
@@ -37,43 +34,24 @@ jobs:
         pip install --upgrade pip
         pip install buildozer cython
 
-    - name: 5. إعداد Android SDK (قبول التراخيص يدوياً)
+    - name: 5. تحميل وتثبيت أدوات أندرويد وقبول التراخيص
       run: |
         export ANDROID_HOME="$HOME/.buildozer/android/platform/android-sdk"
         mkdir -p "$ANDROID_HOME"
-        
-        # تحميل أحدث أدوات سطر الأوامر
         wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/cmdline-tools.zip
         unzip -q /tmp/cmdline-tools.zip -d /tmp/
         mkdir -p "$ANDROID_HOME/cmdline-tools"
         mv /tmp/cmdline-tools "$ANDROID_HOME/cmdline-tools/latest"
-        
         echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
         echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
-        
-        # قبول التراخيص (هذا يحل المشكلة الأصلية)
         yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null 2>&1
-        
-        # تثبيت Build-Tools 37
         "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "build-tools;37.0.0" "platforms;android-33"
 
-    - name: 6. إنشاء ملف buildozer.spec (إذا لم يكن موجوداً)
+    - name: 6. إنشاء ملف buildozer.spec إذا كان مفقوداً
       run: |
         if [ ! -f "buildozer.spec" ]; then
-          echo "ملف buildozer.spec غير موجود، سيتم إنشاؤه تلقائياً..."
-          cat > buildozer.spec << 'EOF'
-[app]
-title = تطبيقي
-package.name = myapp
-package.domain = org.test
-
-[buildozer]
-android.accept_sdk_license = True
-android.sdk_build_tools = 37.0.0
-android.ndk = 25c
-android.minapi = 21
-android.target_sdk = 33
-EOF
+          echo "⚠️ ملف buildozer.spec غير موجود، سيتم إنشاؤه..."
+          printf '[app]\ntitle = تطبيقي\npackage.name = myapp\npackage.domain = org.test\n\n[buildozer]\nandroid.accept_sdk_license = True\nandroid.sdk_build_tools = 37.0.0\nandroid.ndk = 25c\nandroid.minapi = 21\nandroid.target_sdk = 33\n' > buildozer.spec
         fi
 
     - name: 7. بناء ملف APK
@@ -81,8 +59,8 @@ EOF
         export ANDROID_HOME="$HOME/.buildozer/android/platform/android-sdk"
         buildozer android debug
 
-    - name: 8. رفع ملف APK الناتج
+    - name: 8. رفع ملف APK
       uses: actions/upload-artifact@v4
       with:
-        name: app-debug
+        name: التطبيق-النهائي
         path: bin/*.apk

@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
-    timeout-minutes: 60   # مهلة أطول
+    timeout-minutes: 60
 
     steps:
     - name: Checkout code
@@ -37,24 +37,17 @@ jobs:
         sudo apt update
         sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev \
           libjpeg-dev libpng-dev libfreetype6-dev
-        pip install --upgrade pip
+        # تحديث pip وأدوات التوزيع الأساسية فقط (دون تحديد إصدار صارم)
+        pip install --upgrade pip setuptools wheel
         pip install buildozer
         pip install cython==0.29.37
 
     - name: Build with Buildozer
       run: |
-        # إجبار Buildozer على استخدام Python 3.10
+        # تأكيد استخدام Python 3.10
         export PATH="/opt/hostedtoolcache/Python/3.10.21/x64/bin:$PATH"
-        python --version  # تأكيد الإصدار
+        python --version
         buildozer android debug
       env:
         ANDROID_HOME: ${{ env.ANDROID_HOME }}
         GRADLE_OPTS: "-Xmx1024m -Xms256m"
-        # منع Buildozer من إنشاء بيئة افتراضية بإصدار مختلف
-        PIP_REQUIRE_VIRTUALENV: "false"
-
-    - name: Upload APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: MyApp-APK
-        path: bin/*.apk

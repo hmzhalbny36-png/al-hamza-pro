@@ -9,6 +9,9 @@ package.name = alhamzapro
 # (str) Package domain (needed for android packaging)
 package.domain = org.alhamza
 
+# (str) Application versioning (THIS WAS MISSING)
+version = 1.0
+
 # (str) Source files where the *.py files are located
 source.dir = .
 
@@ -19,7 +22,6 @@ source.include_exts = py,png,jpg,kv,atlas
 source.exclude_exts = spec
 
 # (list) Application requirements
-# Add here all dependencies your app needs
 requirements = python3,kivy
 
 # (str) Supported orientation

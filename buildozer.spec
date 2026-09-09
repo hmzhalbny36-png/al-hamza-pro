@@ -1,30 +1,45 @@
 [app]
 
+# (str) Title of your application
 title = Al-Hamza Pro
-package.name = alhamzapro
-package.domain = org.alhamza
-version = 1.0
 
+# (str) Package name
+package.name = alhamzapro
+
+# (str) Package domain (needed for android packaging)
+package.domain = org.alhamza
+
+# (str) Source files where the *.py files are located
 source.dir = .
-source.exclude_exts = spec
+
+# (list) Source files to include (let it empty to include all files)
 source.include_exts = py,png,jpg,kv,atlas
 
+# (list) List of exclusions
+source.exclude_exts = spec
+
+# (list) Application requirements
+# Add here all dependencies your app needs
 requirements = python3,kivy
 
+# (str) Supported orientation
 orientation = portrait
 
-android.api = 33
-android.min_api = 24
+#
+# Android specific
+#
 
+# (int) Target Android API, should be as high as possible
+android.api = 34
+
+# (int) Minimum API your APK / AAB will support
+android.minapi = 21
+
+# (int) Android SDK version to use
+android.sdk = 34
+
+# (str) Android NDK version to use
 android.ndk = 25b
-android.ndk_api = 24
 
-# تثبيت إصدار أدوات البناء المحدد لمنع جلب الإصدار 37 الخاطئ
-android.build_tools_version = 33.0.2
-
-android.release_artifact = apk
-android.debug_artifact = apk
-
-[buildozer]
-log_level = 2
-warn_on_root = 1
+# (bool) Enable Android auto-backup (Android API >=23)
+android.autopermissions = True

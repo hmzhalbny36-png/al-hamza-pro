@@ -17,21 +17,18 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Install Dependencies & Buildozer
+    - name: Install Dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev ccache
         pip install --upgrade pip
         pip install --upgrade buildozer cython==0.29.36
 
-    - name: Accept Android SDK Licenses and Build APK
+    - name: Build with Buildozer
+      env:
+        AAX_HOME: ${{ github.workspace }}
       run: |
         rm -rf .buildozer bin
-        yes | buildozer android debug || true
-        # محاولة إجبار قبول رخص الـ SDK إذا توقفت أداة البناء
-        if [ -d "$HOME/.buildozer/android/platform/android-sdk" ]; then
-          yes | $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
-        fi
         buildozer -v android debug
 
     - name: Upload APK

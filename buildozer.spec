@@ -14,8 +14,6 @@ fullscreen = 0
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
 
-# icon.filename = icon.png
-
 android.permissions = INTERNET, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE
 
 android.minapi = 21
@@ -23,11 +21,16 @@ android.sdk = 33
 android.gradle_dependencies = ''
 
 android.accept_sdk_license = True
-android.p4a_whitelist = libjpeg-turbo, libpng, libfreetype
-android.ndk = 28c
 
-# تحديد إصدار Python المستخدم داخل Android (لا يزال 3.10)
-python.requirements = pip==23.2.1, setuptools==68.0.0, wheel==0.41.0
+# --- الإعدادات المحسّنة لتجنب تعليق البناء ---
+# تجميع معمارية واحدة فقط (لتخفيف الحمل على الذاكرة)
+android.arch = armeabi-v7a
+# استخدام إصدار NDK أخف
+android.ndk = 27c
+# استبدال الإعداد القديم (p4a_whitelist) بالجديد
+android.whitelist = libjpeg-turbo, libpng, libfreetype
+
+# --- ملاحظة: تم حذف سطر python.requirements لتجنب التعارض ---
 
 [buildozer]
 log_level = 2

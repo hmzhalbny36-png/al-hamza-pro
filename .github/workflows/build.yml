@@ -24,13 +24,14 @@ jobs:
         pip install --upgrade pip
         pip install --upgrade buildozer cython==0.29.36
 
-    - name: Accept Licenses and Build APK
+    - name: Setup Android SDK and Build APK
       run: |
         rm -rf .buildozer bin
         mkdir -p ~/.android
         touch ~/.android/repositories.cfg
-        # إجبار قبول تراخيص أدوات الأندرويد سلفاً لتجنب خطأ التوقف
-        yes | sdkmanager --licenses || true
+        
+        export ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk
+        
         buildozer -v android debug
 
     - name: Upload APK

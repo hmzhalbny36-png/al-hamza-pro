@@ -11,20 +11,16 @@ class AlHamzaProApp(App):
     def build(self):
         self.layout = BoxLayout(orientation='vertical', padding=20, spacing=15)
         
-        # عنوان التطبيق
         self.label_title = Label(text='[b]Al-Hamza Pro[/b]\nمعالج الصور', markup=True, font_size='24sp')
         self.layout.add_widget(self.label_title)
         
-        # زر لمعالجة الصورة
         self.btn_process = Button(text='اضغط لإنشاء وتعديل الصورة', size_hint=(1, 0.3))
         self.btn_process.bind(on_press=self.process_and_show)
         self.layout.add_widget(self.btn_process)
         
-        # مكان عرض الصورة بعد التعديل
         self.image_display = KivyImage(size_hint=(1, 0.6))
         self.layout.add_widget(self.image_display)
         
-        # علامة الحالة
         self.status_label = Label(text='انتظر الضغط على الزر', font_size='16sp')
         self.layout.add_widget(self.status_label)
         
@@ -34,23 +30,20 @@ class AlHamzaProApp(App):
         try:
             self.status_label.text = 'جاري معالجة الصورة...'
             
-            # 1. إنشاء الصورة الأصلية
             img = Image.new('RGB', (800, 600), color=(73, 109, 137))
             d = ImageDraw.Draw(img)
             d.text((250, 280), "Al-Hamza Pro", fill=(255, 255, 0))
             img.save("logo_test.jpg")
             
-            # 2. تصغير الصورة
             with Image.open("logo_test.jpg") as img_opened:
                 width, height = img_opened.size
                 new_size = (width // 2, height // 2)
                 resized_img = img_opened.resize(new_size)
                 resized_img.save("output_logo_test.jpg")
             
-            # 3. عرض الصورة الجديدة في التطبيق
             with open("output_logo_test.jpg", "rb") as f:
                 data = f.read()
-                texture = Texture.create(size=(400, 300))  # عرض مصغر
+                texture = Texture.create(size=(400, 300))
                 texture.blit_buffer(data, colorfmt='rgb', bufferfmt='ubyte')
                 self.image_display.texture = texture
             

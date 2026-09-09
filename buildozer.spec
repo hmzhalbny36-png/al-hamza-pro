@@ -22,10 +22,12 @@ android.minapi = 21
 android.sdk = 33
 android.gradle_dependencies = ''
 
-# لا تحدد مسار SDK هنا، بل اعتمد على متغير البيئة ANDROID_HOME الذي سيضبطه إجراء setup-android
-# android.sdk_path = 
-
 android.accept_sdk_license = True
+android.p4a_whitelist = libjpeg-turbo, libpng, libfreetype
+android.ndk = 28c
+
+# تحديد إصدار Python المستخدم داخل Android (لا يزال 3.10)
+python.requirements = pip==23.2.1, setuptools==68.0.0, wheel==0.41.0
 
 [buildozer]
 log_level = 2

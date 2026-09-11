@@ -1,4 +1,4 @@
-name: Build APK with Action
+name: Direct Android Build
 
 on:
   push:
@@ -11,15 +11,32 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Build with Buildozer
-      uses: ArtemSBulgakov/buildozer-action@v1
-      id: buildozer
+    - name: Set up Python
+      uses: actions/setup-python@v5
       with:
-        command: buildozer android debug
-        buildozer_version: master
+        python-version: '3.10'
 
-    - name: Upload APK
+    - name: Install System Dependencies
+      run: |
+        sudo dpkg --add-architecture i386
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential git ccache lib32z1 lib32stdc++6 \
+          python3-pip python3-dev python3-setuptools \
+          openjdk-17-jdk ant unzip libffi-dev libssl-dev
+
+    - name: Install Buildozer and Cython
+      run: |
+        pip install --upgrade pip
+        pip install cython==0.29.36
+        pip install buildozer
+
+    - name: Build APK with Buildozer
+      run: |
+        buildozer -v android debug
+
+    - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Al-Hamza-Pro-App
+        name: Al-Hamza-Pro-APK
         path: bin/*.apk

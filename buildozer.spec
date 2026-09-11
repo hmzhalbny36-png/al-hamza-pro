@@ -1,37 +1,38 @@
 [app]
 
+# (str) Title of your application
 title = Al-Hamza Pro
+
+# (str) Package name
 package.name = alhamzapro
-package.domain = org.test
-version = 0.1
-version.code = 1
 
-requirements = python3,kivy,pillow
+# (str) Package domain (needed for android packaging)
+package.domain = org.alhamza
 
-orientation = portrait
-fullscreen = 0
-
-source.dir = .
+# (list) Source files to include (let it empty to include all files)
 source.include_exts = py,png,jpg,kv,atlas
 
-android.permissions = INTERNET, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE
+# (list) Source files to exclude (let it empty to exclude nothing)
+source.exclude_exts = spec
 
+# (list) List of inclusion/exclusion patterns
+source.exclude_patterns = license, images/*.jpg
+
+# (list) Application requirements
+# comma separated e.g. requirements = sqlite3,kivy
+requirements = python3,kivy
+
+# (str) Supported orientations
+orientation = portrait
+
+# (list) The Android specific API to use (default is 33)
+android.api = 31
+
+# (list) Minimum API your APK will support
 android.minapi = 21
-android.sdk = 33
-android.gradle_dependencies = ''
 
-android.accept_sdk_license = True
+# (bool) Indicate whether the application should be full screen or not
+fullscreen = 0
 
-# --- الإعدادات المحسّنة لتجنب تعليق البناء ---
-# تجميع معمارية واحدة فقط (لتخفيف الحمل على الذاكرة)
-android.arch = armeabi-v7a
-# استخدام إصدار NDK أخف
-android.ndk = 27c
-# استبدال الإعداد القديم (p4a_whitelist) بالجديد
-android.whitelist = libjpeg-turbo, libpng, libfreetype
-
-# --- ملاحظة: تم حذف سطر python.requirements لتجنب التعارض ---
-
-[buildozer]
-log_level = 2
-warn_on_root = 1
+# (string) Presign build target (default is debug)
+android.presign = True

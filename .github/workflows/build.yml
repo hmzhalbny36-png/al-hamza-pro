@@ -1,53 +1,36 @@
-name: Build Android APK
+name: Build Android APK with Buildozer
 
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
-    timeout-minutes: 60
+    runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+    - name: Checkout Code
+      uses: actions/checkout@v3
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v4
       with:
         python-version: '3.10'
 
-    - name: Set up Android SDK
-      uses: android-actions/setup-android@v3
-      with:
-        cmdline-tools-version: 9477386
-
-    - name: Install specific build-tools and platforms
+    - name: Install Dependencies
       run: |
-        yes | sdkmanager --licenses
-        sdkmanager "build-tools;33.0.0"
-        sdkmanager "platforms;android-33"
-        sdkmanager "platform-tools"
-
-    - name: Install system dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev \
-          libjpeg-dev libpng-dev libfreetype6-dev
-        # تحديث pip وأدوات التوزيع الأساسية فقط (دون تحديد إصدار صارم)
-        pip install --upgrade pip setuptools wheel
-        pip install buildozer
-        pip install cython==0.29.37
+        sudo apt-get update
+        sudo apt-get install -y git zip unzip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
 
     - name: Build with Buildozer
-      run: |
-        # تأكيد استخدام Python 3.10
-        export PATH="/opt/hostedtoolcache/Python/3.10.21/x64/bin:$PATH"
-        python --version
-        buildozer android debug
-      env:
-        ANDROID_HOME: ${{ env.ANDROID_HOME }}
-        GRADLE_OPTS: "-Xmx1024m -Xms256m"
+      uses: ArtemSBulgakov/buildozer-action@v1
+      id: buildozer
+      with:
+        command: buildozer android debug
+        buildozer_version: master
+
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: package
+        path: bin/*.apk

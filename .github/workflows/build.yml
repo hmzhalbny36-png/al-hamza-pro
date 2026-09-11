@@ -18,9 +18,10 @@ jobs:
 
     - name: Install System Dependencies
       run: |
+        sudo dpkg --add-architecture i386
         sudo apt-get update
         sudo apt-get install -y \
-          python3-pip build-essential git zlib1g-dev zlib1g:i386 libncurses5:i386 libstdc++6:i386 libz1:i386 \
+          python3-pip build-essential git zlib1g-dev \
           openjdk-17-jdk ant mercurial patch sed wget curl
 
     - name: Install Buildozer and Cython

@@ -9,6 +9,9 @@ package.name = alhamzapro
 # (str) Package domain (needed for android packaging)
 package.domain = org.alhamza
 
+# (str) Source directory where the main file is located
+source.dir = .
+
 # (list) Source files to include (let it empty to include all files)
 source.include_exts = py,png,jpg,kv,atlas
 
@@ -18,14 +21,16 @@ source.exclude_exts = spec
 # (list) List of inclusion/exclusion patterns
 source.exclude_patterns = license, images/*.jpg
 
+# (string) Application versioning
+version = 1.0
+
 # (list) Application requirements
-# comma separated e.g. requirements = sqlite3,kivy
 requirements = python3,kivy
 
 # (str) Supported orientations
 orientation = portrait
 
-# (list) The Android specific API to use (default is 33)
+# (list) The Android specific API to use
 android.api = 31
 
 # (list) Minimum API your APK will support
